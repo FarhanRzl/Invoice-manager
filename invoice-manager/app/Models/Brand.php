@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Invoice;
+
+class Brand extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'code',
+        'npwp',
+        'address',
+        'phone',
+        'email',
+        'website',
+        'logo_path',
+        'qris_path',
+        'rekening_config',
+        'ttd_path',
+        'stempel_path',
+        'materai_path',
+        'ttd_nama',
+        'ttd_jabatan',
+        'color_header',
+        'color_accent',
+        'canva_link',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'rekening_config' => 'array',
+        ];
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class);
+    }
+
+    public function formOrders(): HasMany
+    {
+        return $this->hasMany(FormOrder::class);
+    }
+}

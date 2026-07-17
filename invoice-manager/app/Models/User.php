@@ -7,11 +7,26 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Brand;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Invoice;
 class User extends Authenticatable
 {
+    use HasFactory, Notifiable, HasRoles;
+
+    public function brands(): BelongsToMany
+    {
+        return $this->belongsToMany(Brand::class)
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'created_by');
+    }
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
