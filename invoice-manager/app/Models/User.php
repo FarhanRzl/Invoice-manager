@@ -22,6 +22,12 @@ class User extends Authenticatable
             ->withPivot('is_primary')
             ->withTimestamps();
     }
+
+    public function ownedBrands(): HasMany
+    {
+        return $this->hasMany(Brand::class, 'created_by');
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class, 'created_by');

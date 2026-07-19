@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Brand;
 use App\Models\FormOrder;
 use App\Models\User;
 
@@ -9,29 +10,29 @@ class FormOrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin')
-            || $user->hasRole('brand_user');
+        return $user->hasRole('admin');
     }
 
     public function view(User $user, FormOrder $formOrder): bool
     {
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole('superadmin')) {
             return true;
         }
 
-        if (! $user->hasRole('brand_user')) {
+        return $user->hasRole('admin') && $formOrder->brand?->created_by === $user->id;
+    }
+
+    public function create(User $user, ?Brand $brand = null): bool
+    {
+        if (! $user->hasRole('admin')) {
             return false;
         }
 
-        return $user->brands()
-            ->where('brands.id', $formOrder->brand_id)
-            ->exists();
-    }
+        if ($user->hasRole('superadmin') || $brand === null) {
+            return true;
+        }
 
-    public function create(User $user): bool
-    {
-        return $user->hasRole('admin')
-            || $user->hasRole('brand_user');
+        return $brand->created_by === $user->id;
     }
 
     public function update(User $user, FormOrder $formOrder): bool
@@ -40,17 +41,7 @@ class FormOrderPolicy
             return false;
         }
 
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        if (! $user->hasRole('brand_user')) {
-            return false;
-        }
-
-        return $user->brands()
-            ->where('brands.id', $formOrder->brand_id)
-            ->exists();
+        return $this->view($user, $formOrder);
     }
 
     public function delete(User $user, FormOrder $formOrder): bool
@@ -59,16 +50,6 @@ class FormOrderPolicy
             return false;
         }
 
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        if (! $user->hasRole('brand_user')) {
-            return false;
-        }
-
-        return $user->brands()
-            ->where('brands.id', $formOrder->brand_id)
-            ->exists();
+        return $this->view($user, $formOrder);
     }
 }

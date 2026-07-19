@@ -241,13 +241,6 @@
         </div>
 
         <div>
-            <x-input-label for="jatuh_tempo" value="Jatuh Tempo" />
-            <x-text-input id="jatuh_tempo" name="jatuh_tempo" type="date" class="mt-1 block w-full"
-                value="{{ old('jatuh_tempo', optional($invoice->jatuh_tempo ?? null)->format('Y-m-d')) }}" required />
-            <x-input-error :messages="$errors->get('jatuh_tempo')" class="mt-1" />
-        </div>
-
-        <div>
             <x-input-label for="desain_tema" value="Model Desain" />
             <select id="desain_tema" name="desain_tema" x-model="desainTema"
                 class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
@@ -341,6 +334,15 @@
         </div>
         <x-input-error :messages="$errors->get('items')" class="mb-2" />
 
+        <div class="hidden sm:grid sm:grid-cols-12 gap-3 px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            <div class="sm:col-span-4">Deskripsi Pekerjaan</div>
+            <div class="sm:col-span-1">Volume</div>
+            <div class="sm:col-span-2">Satuan</div>
+            <div class="sm:col-span-2">Harga Satuan</div>
+            <div class="sm:col-span-2">Jumlah</div>
+            <div class="sm:col-span-1"></div>
+        </div>
+
         <div class="space-y-3">
             <template x-for="(item, index) in items" :key="item._uid">
                 <div class="rounded-lg p-3"
@@ -350,7 +352,7 @@
                     <input type="hidden" :name="'items[' + index + '][type]'" x-model="item.type">
 
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
-                        <div class="sm:col-span-5">
+                        <div class="sm:col-span-4">
                             <template x-if="item.type === 'paket'">
                                 <textarea :name="'items[' + index + '][deskripsi]'" x-model="item.deskripsi" rows="4"
                                     class="block w-full text-xs font-mono border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"></textarea>
@@ -363,7 +365,7 @@
                         </div>
 
                         <template x-if="item.type !== 'group'">
-                            <div class="sm:col-span-2">
+                            <div class="sm:col-span-1">
                                 <input type="number" step="0.01" min="0" :name="'items[' + index + '][volume]'" x-model="item.volume"
                                     placeholder="Volume"
                                     class="block w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
@@ -383,9 +385,14 @@
                                     class="block w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                             </div>
                         </template>
+                        <template x-if="item.type !== 'group'">
+                            <div class="sm:col-span-2 flex items-center h-[38px] text-sm font-semibold text-slate-700">
+                                <span x-text="'Rp ' + itemTotal(item).toLocaleString('id-ID')"></span>
+                            </div>
+                        </template>
 
                         <template x-if="item.type === 'group'">
-                            <div class="sm:col-span-6 flex items-center justify-end text-sm font-semibold text-sky-700">
+                            <div class="sm:col-span-7 flex items-center justify-end text-sm font-semibold text-sky-700">
                                 <span x-text="item.sub_items.length + ' sub item — Rp ' + itemTotal(item).toLocaleString('id-ID')"></span>
                             </div>
                         </template>

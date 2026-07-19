@@ -158,8 +158,8 @@ class RekapService
     {
         return Invoice::query()
             ->when(
-                ! $user->hasRole('admin'),
-                fn ($query) => $query->whereIn('brand_id', $user->brands()->pluck('brands.id'))
+                ! $user->hasRole('superadmin'),
+                fn ($query) => $query->whereIn('brand_id', $user->ownedBrands()->pluck('id'))
             );
     }
 
@@ -167,8 +167,8 @@ class RekapService
     {
         return Lead::query()
             ->when(
-                ! $user->hasRole('admin'),
-                fn ($query) => $query->whereIn('brand_id', $user->brands()->pluck('brands.id'))
+                ! $user->hasRole('superadmin'),
+                fn ($query) => $query->whereIn('brand_id', $user->ownedBrands()->pluck('id'))
             );
     }
 }

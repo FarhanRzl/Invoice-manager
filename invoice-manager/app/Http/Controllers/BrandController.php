@@ -15,7 +15,15 @@ class BrandController extends Controller
     {
         $this->authorize('viewAny', Brand::class);
 
-        $brands = Brand::latest()->paginate(10);
+        $user = auth()->user();
+
+        $brands = Brand::query()
+            ->when(
+                ! $user->hasRole('superadmin'),
+                fn ($query) => $query->where('created_by', $user->id)
+            )
+            ->latest()
+            ->paginate(10);
 
         return view('brands.index', compact('brands'));
     }
@@ -33,7 +41,7 @@ class BrandController extends Controller
     ) {
         $this->authorize('create', Brand::class);
 
-        $action->execute($request->validated());
+        $action->execute($request->validated(), auth()->id());
 
         return redirect()
             ->route('brands.index')

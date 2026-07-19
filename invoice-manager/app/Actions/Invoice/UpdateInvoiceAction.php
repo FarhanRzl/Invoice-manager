@@ -28,7 +28,7 @@ class UpdateInvoiceAction
                 'phone' => $data['phone'] ?? null,
                 'email' => $data['email'] ?? null,
                 'tanggal' => $data['tanggal'],
-                'jatuh_tempo' => $data['jatuh_tempo'],
+                'jatuh_tempo' => $data['jatuh_tempo'] ?? null,
                 'desain_tema' => $data['desain_tema'] ?? $invoice->desain_tema ?? 'classic',
                 'kop_config' => $this->buildKopConfig($brand, $data, $invoice->kop_config ?? []),
                 'sign_config' => $this->buildSignConfig($brand),

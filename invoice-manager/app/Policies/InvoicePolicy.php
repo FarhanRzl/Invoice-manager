@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Brand;
 use App\Models\Invoice;
 use App\Models\User;
 
@@ -9,29 +10,33 @@ class InvoicePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin')
-            || $user->hasRole('brand_user');
+        return $user->hasRole('admin');
     }
 
     public function view(User $user, Invoice $invoice): bool
     {
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole('superadmin')) {
             return true;
         }
 
-        if (! $user->hasRole('brand_user')) {
+        return $user->hasRole('admin') && $invoice->brand?->created_by === $user->id;
+    }
+
+    /**
+     * $brand dicek kalau tersedia (mis. saat submit form dengan brand_id tertentu).
+     * Tanpa $brand, ini hanya cek apakah user boleh mengakses halaman "Buat Invoice" sama sekali.
+     */
+    public function create(User $user, ?Brand $brand = null): bool
+    {
+        if (! $user->hasRole('admin')) {
             return false;
         }
 
-        return $user->brands()
-            ->where('brands.id', $invoice->brand_id)
-            ->exists();
-    }
+        if ($user->hasRole('superadmin') || $brand === null) {
+            return true;
+        }
 
-    public function create(User $user): bool
-    {
-        return $user->hasRole('admin')
-            || $user->hasRole('brand_user');
+        return $brand->created_by === $user->id;
     }
 
     public function viewReceipt(User $user, Invoice $invoice): bool
@@ -46,17 +51,7 @@ class InvoicePolicy
             return false;
         }
 
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        if (! $user->hasRole('brand_user')) {
-            return false;
-        }
-
-        return $user->brands()
-            ->where('brands.id', $invoice->brand_id)
-            ->exists();
+        return $this->view($user, $invoice);
     }
 
     public function delete(User $user, Invoice $invoice): bool
@@ -65,16 +60,6 @@ class InvoicePolicy
             return false;
         }
 
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        if (! $user->hasRole('brand_user')) {
-            return false;
-        }
-
-        return $user->brands()
-            ->where('brands.id', $invoice->brand_id)
-            ->exists();
+        return $this->view($user, $invoice);
     }
 }

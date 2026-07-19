@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $invoice->nomor }}</title>
+    @vite(['resources/css/app.css'])
     <style>
         * { box-sizing: border-box; }
         body {
@@ -33,7 +34,7 @@
 </head>
 <body>
 
-    <div class="no-print" style="text-align:center;padding:16px;background:#f7fafc;border-bottom:1px solid #e2e8f0">
+    <div class="no-print" style="text-align:right;padding:16px 24px;background:#f7fafc;border-bottom:1px solid #e2e8f0">
         <button onclick="window.print()" style="background:#1a365d;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">
             Cetak
         </button>

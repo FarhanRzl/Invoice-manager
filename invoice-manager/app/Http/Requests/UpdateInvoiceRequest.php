@@ -36,7 +36,7 @@ class UpdateInvoiceRequest extends FormRequest
 
             'tanggal' => ['required', 'date'],
 
-            'jatuh_tempo' => ['required', 'date'],
+            'jatuh_tempo' => ['nullable', 'date'],
 
             'diskon_persen' => ['nullable', 'numeric', 'between:0,100'],
 

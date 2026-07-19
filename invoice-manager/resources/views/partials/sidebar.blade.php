@@ -1,6 +1,4 @@
 @php
-    $isAdmin = auth()->user()?->hasRole('admin');
-
     // routeName => [label, icon, activePatterns]
     $utama = [
         ['dashboard',        'Dashboard',          'dashboard',      ['dashboard']],
@@ -102,42 +100,17 @@
                 </ul>
             </div>
 
-            {{-- ADMIN --}}
-            @role('admin')
+            {{-- SUPERADMIN --}}
+            @role('superadmin')
             <div>
-                <p class="px-3 mb-2 text-[10px] font-bold tracking-wider text-gold-400 uppercase">Admin</p>
+                <p class="px-3 mb-2 text-[10px] font-bold tracking-wider text-gold-400 uppercase">Superadmin</p>
                 <ul class="space-y-0.5">
                     <li>
-                        @if (\Illuminate\Support\Facades\Route::has('settings.index'))
-                            <a href="{{ route('settings.index') }}"
-                               class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition
-                                      {{ request()->routeIs('settings.*') ? 'bg-white/10 text-gold-400' : 'text-navy-100/80 hover:bg-white/5 hover:text-white' }}">
-                                <x-icon name="settings" class="w-5 h-5 shrink-0" />
-                                <span>Pengaturan</span>
-                            </a>
-                        @else
-                            <span class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium text-navy-100/30 cursor-not-allowed">
-                                <x-icon name="settings" class="w-5 h-5 shrink-0" />
-                                <span>Pengaturan</span>
-                                <span class="ml-auto text-[9px] font-bold uppercase tracking-wide bg-white/5 text-navy-100/40 rounded px-1.5 py-0.5">Segera</span>
-                            </span>
-                        @endif
-                    </li>
-                </ul>
-            </div>
-            @endrole
-
-            {{-- BRAND USER --}}
-            @role('brand_user')
-            <div>
-                <p class="px-3 mb-2 text-[10px] font-bold tracking-wider text-gold-400 uppercase">Akun Saya</p>
-                <ul class="space-y-0.5">
-                    <li>
-                        <a href="{{ route('brands.index') }}"
+                        <a href="{{ route('admin-users.index') }}"
                            class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition
-                                  {{ request()->routeIs('brands.*') ? 'bg-white/10 text-gold-400' : 'text-navy-100/80 hover:bg-white/5 hover:text-white' }}">
-                            <x-icon name="building" class="w-5 h-5 shrink-0" />
-                            <span>Brand Saya</span>
+                                  {{ request()->routeIs('admin-users.*') ? 'bg-white/10 text-gold-400' : 'text-navy-100/80 hover:bg-white/5 hover:text-white' }}">
+                            <x-icon name="settings" class="w-5 h-5 shrink-0" />
+                            <span>Kelola Admin</span>
                         </a>
                     </li>
                 </ul>

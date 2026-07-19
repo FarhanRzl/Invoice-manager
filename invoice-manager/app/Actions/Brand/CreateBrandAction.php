@@ -9,12 +9,13 @@ class CreateBrandAction
 {
     use StoresBrandFiles;
 
-    public function execute(array $data): Brand
+    public function execute(array $data, int $createdBy): Brand
     {
         $data = $this->storeBrandFiles($data);
         $data = $this->normalizeRekening($data);
 
         $data['code'] = $this->generateCode($data['name']);
+        $data['created_by'] = $createdBy;
 
         return Brand::create($data);
     }

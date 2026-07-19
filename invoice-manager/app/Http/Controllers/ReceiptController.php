@@ -16,8 +16,8 @@ class ReceiptController extends Controller
         $invoices = Invoice::lunas()
             ->with('brand')
             ->when(
-                ! $user->hasRole('admin'),
-                fn ($query) => $query->whereIn('brand_id', $user->brands()->pluck('brands.id'))
+                ! $user->hasRole('superadmin'),
+                fn ($query) => $query->whereIn('brand_id', $user->ownedBrands()->pluck('id'))
             )
             ->latest('tanggal_lunas')
             ->paginate(15);

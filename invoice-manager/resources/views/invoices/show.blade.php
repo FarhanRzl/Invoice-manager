@@ -17,20 +17,10 @@
                     </form>
                 @endif
 
-                @if ($invoice->status === 'menunggu' && ! $invoice->is_locked)
-                    <form action="{{ route('invoices.lock', $invoice) }}" method="POST" target="_blank"
-                          onsubmit="return confirm('Cetak &amp; kunci invoice {{ $invoice->nomor }}? Invoice tidak bisa diedit lagi setelah dicetak.');">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-2 bg-navy-600 hover:bg-navy-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition">
-                            Cetak &amp; Kunci
-                        </button>
-                    </form>
-                @elseif ($invoice->is_locked)
-                    <a href="{{ route('invoices.print', $invoice) }}" target="_blank"
-                       class="inline-flex items-center gap-2 bg-navy-600 hover:bg-navy-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition">
-                        Cetak
-                    </a>
-                @endif
+                <a href="{{ route('invoices.print', $invoice) }}" target="_blank"
+                   class="inline-flex items-center gap-2 bg-navy-600 hover:bg-navy-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition">
+                    Cetak
+                </a>
 
                 @if ($invoice->status === 'menunggu')
                     <a href="{{ route('invoices.edit', $invoice) }}"
@@ -93,10 +83,12 @@
                     <dt class="text-slate-400 text-xs uppercase tracking-wide">Tanggal Invoice</dt>
                     <dd class="mt-0.5 text-slate-700">{{ $invoice->tanggal->format('d M Y') }}</dd>
                 </div>
-                <div>
-                    <dt class="text-slate-400 text-xs uppercase tracking-wide">Jatuh Tempo</dt>
-                    <dd class="mt-0.5 text-slate-700">{{ $invoice->jatuh_tempo->format('d M Y') }}</dd>
-                </div>
+                @if ($invoice->jatuh_tempo)
+                    <div>
+                        <dt class="text-slate-400 text-xs uppercase tracking-wide">Jatuh Tempo</dt>
+                        <dd class="mt-0.5 text-slate-700">{{ $invoice->jatuh_tempo->format('d M Y') }}</dd>
+                    </div>
+                @endif
             </dl>
         </div>
 

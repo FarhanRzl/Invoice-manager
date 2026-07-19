@@ -10,31 +10,35 @@
 @endphp
 
 @if ($invoice->qris_path)
-    <div class="text-center">
-        <div class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Scan QRIS untuk pembayaran</div>
-        <img src="{{ $src($invoice->qris_path) }}" alt="QRIS" class="mx-auto h-40 w-40 object-contain rounded border border-slate-200 bg-white p-2">
+    <div style="text-align:center">
+        <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Scan QRIS untuk pembayaran</div>
+        <img src="{{ $src($invoice->qris_path) }}" alt="QRIS" style="margin:0 auto;height:160px;width:160px;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;background:#fff;padding:8px">
     </div>
 @endif
 
 @if ($hasSign)
-    <div class="flex justify-end">
-        <div class="text-center min-w-[160px]">
-            <div class="text-xs text-slate-500 mb-2">{{ $sign['ttd_nama'] ?? $invoice->brand->name }},</div>
-            <div class="relative h-20 flex items-center justify-center">
-                @if (! empty($sign['stempel_path']))
-                    <img src="{{ $src($sign['stempel_path']) }}" class="absolute opacity-60 h-24 w-24 object-contain">
-                @endif
-                @if (! empty($sign['ttd_path']))
-                    <img src="{{ $src($sign['ttd_path']) }}" class="relative h-16 max-w-[120px] object-contain">
-                @endif
-                @if (! empty($sign['materai_path']))
-                    <img src="{{ $src($sign['materai_path']) }}" class="absolute bottom-0 right-0 h-12 w-12 object-contain">
-                @endif
-            </div>
-            <div class="border-t border-slate-700 pt-1 mt-1 text-sm font-bold">{{ $sign['ttd_nama'] ?? $invoice->brand->name }}</div>
-            @if (! empty($sign['ttd_jabatan']))
-                <div class="text-xs text-slate-500">{{ $sign['ttd_jabatan'] }}</div>
-            @endif
-        </div>
-    </div>
+    <table style="width:100%;border-collapse:collapse">
+        <tr>
+            <td style="text-align:right">
+                <div style="display:inline-block;text-align:center;min-width:160px">
+                    <div style="font-size:11px;color:#64748b;margin-bottom:8px">{{ $sign['ttd_nama'] ?? $invoice->brand->name }},</div>
+                    <div style="position:relative;height:80px;text-align:center">
+                        @if (! empty($sign['stempel_path']))
+                            <img src="{{ $src($sign['stempel_path']) }}" style="position:absolute;top:0;left:50%;margin-left:-48px;opacity:.6;height:96px;width:96px;object-fit:contain">
+                        @endif
+                        @if (! empty($sign['ttd_path']))
+                            <img src="{{ $src($sign['ttd_path']) }}" style="position:relative;height:64px;max-width:120px;object-fit:contain">
+                        @endif
+                        @if (! empty($sign['materai_path']))
+                            <img src="{{ $src($sign['materai_path']) }}" style="position:absolute;bottom:0;right:0;height:48px;width:48px;object-fit:contain">
+                        @endif
+                    </div>
+                    <div style="border-top:1px solid #334155;padding-top:4px;margin-top:4px;font-size:13px;font-weight:700">{{ $sign['ttd_nama'] ?? $invoice->brand->name }}</div>
+                    @if (! empty($sign['ttd_jabatan']))
+                        <div style="font-size:11px;color:#64748b">{{ $sign['ttd_jabatan'] }}</div>
+                    @endif
+                </div>
+            </td>
+        </tr>
+    </table>
 @endif

@@ -11,9 +11,10 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user->hasRole('admin');
+        $isSuperAdmin = $user->hasRole('superadmin');
 
-        // Brand milik user (admin melihat semua, brand_user hanya miliknya)
-        $brands = $isAdmin ? Brand::all() : $user->brands;
+        // Brand milik user (superadmin melihat semua, admin biasa hanya yang ia buat sendiri)
+        $brands = $isSuperAdmin ? Brand::all() : $user->ownedBrands;
 
         // NOTE: Modul Invoice belum dibangun (masih Fase 0 - Auth & Brand).
         // Statistik berikut sengaja diberi nilai aman (0) agar dashboard tidak error

@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Brand;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class BrandPolicy
 {
@@ -18,8 +17,11 @@ class BrandPolicy
 
     public function view(User $user, Brand $brand): bool
     {
-        return $user->hasRole('admin')
-            || $user->brands()->whereKey($brand->id)->exists();
+        if ($user->hasRole('superadmin')) {
+            return true;
+        }
+
+        return $user->hasRole('admin') && $brand->created_by === $user->id;
     }
 
     public function create(User $user): bool
@@ -29,13 +31,18 @@ class BrandPolicy
 
     public function update(User $user, Brand $brand): bool
     {
-        return $user->hasRole('admin');
+        if ($user->hasRole('superadmin')) {
+            return true;
+        }
+
+        return $user->hasRole('admin') && $brand->created_by === $user->id;
     }
 
     public function delete(User $user, Brand $brand): bool
     {
-        return $user->hasRole('admin');
+        return $this->update($user, $brand);
     }
+
     /**
      * Determine whether the user can restore the model.
      */

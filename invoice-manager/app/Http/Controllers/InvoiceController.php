@@ -26,8 +26,8 @@ class InvoiceController extends Controller
 
         $invoices = Invoice::with('brand')
             ->when(
-                ! $user->hasRole('admin'),
-                fn ($query) => $query->whereIn('brand_id', $user->brands()->pluck('brands.id'))
+                ! $user->hasRole('superadmin'),
+                fn ($query) => $query->whereIn('brand_id', $user->ownedBrands()->pluck('id'))
             )
             ->latest()
             ->paginate(15);
@@ -46,7 +46,9 @@ class InvoiceController extends Controller
 
     public function store(StoreInvoiceRequest $request, CreateInvoiceAction $action)
     {
-        $this->authorize('create', Invoice::class);
+        $brand = Brand::findOrFail($request->validated('brand_id'));
+
+        $this->authorize('create', [Invoice::class, $brand]);
 
         $invoice = $action->execute($request->validated(), auth()->id());
 
@@ -164,7 +166,7 @@ class InvoiceController extends Controller
             'phone' => $data['phone'] ?? null,
             'email' => $data['email'] ?? null,
             'tanggal' => $data['tanggal'],
-            'jatuh_tempo' => $data['jatuh_tempo'],
+            'jatuh_tempo' => $data['jatuh_tempo'] ?? null,
             'desain_tema' => $data['desain_tema'] ?? 'classic',
             'diskon_persen' => $data['diskon_persen'] ?? 0,
             'ppn_persen' => $data['ppn_persen'] ?? 0,
@@ -305,10 +307,10 @@ class InvoiceController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole('superadmin')) {
             return Brand::orderBy('name')->get();
         }
 
-        return $user->brands()->orderBy('name')->get();
+        return $user->ownedBrands()->orderBy('name')->get();
     }
 }

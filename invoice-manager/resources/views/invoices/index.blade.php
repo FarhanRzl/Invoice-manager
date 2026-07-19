@@ -77,11 +77,9 @@
                                         </form>
                                     @endif
 
-                                    @if ($invoice->is_locked)
-                                        <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="text-navy-500 hover:text-navy-700 font-medium">
-                                            Cetak
-                                        </a>
-                                    @endif
+                                    <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="text-navy-500 hover:text-navy-700 font-medium">
+                                        Cetak
+                                    </a>
                                 </div>
                             </td>
                         </tr>

@@ -4,7 +4,9 @@
         ->map(fn ($w) => mb_substr($w, 0, 1))
         ->take(2)
         ->implode('');
-    $roleLabel = $user?->hasRole('admin') ? 'Administrator' : 'Brand User';
+    $roleLabel = $user?->hasRole('superadmin')
+        ? 'Superadmin'
+        : ($user?->hasRole('admin') ? 'Administrator' : 'Pengguna');
 @endphp
 
 <header class="sticky top-0 z-30 h-16 bg-navy-600 flex items-center gap-3 px-4 sm:px-6">

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,7 @@ class Brand extends Model
 
     protected $fillable = [
         'name',
+        'created_by',
         'code',
         'npwp',
         'address',
@@ -45,6 +47,11 @@ class Brand extends Model
         return $this->belongsToMany(User::class)
             ->withPivot('is_primary')
             ->withTimestamps();
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
 

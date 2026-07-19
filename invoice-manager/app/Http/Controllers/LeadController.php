@@ -22,8 +22,8 @@ class LeadController extends Controller
 
         $leads = Lead::with('brand')
             ->when(
-                ! $user->hasRole('admin'),
-                fn ($query) => $query->whereIn('brand_id', $user->brands()->pluck('brands.id'))
+                ! $user->hasRole('superadmin'),
+                fn ($query) => $query->whereIn('brand_id', $user->ownedBrands()->pluck('id'))
             )
             ->when(
                 $user->hasRole('admin') && $request->filled('brand_id'),
@@ -57,7 +57,9 @@ class LeadController extends Controller
 
     public function store(StoreLeadRequest $request, CreateLeadAction $action)
     {
-        $this->authorize('create', Lead::class);
+        $brand = Brand::findOrFail($request->validated('brand_id'));
+
+        $this->authorize('create', [Lead::class, $brand]);
 
         $lead = $action->execute($request->validated(), auth()->id());
 
@@ -88,6 +90,10 @@ class LeadController extends Controller
     {
         $this->authorize('update', $lead);
 
+        $newBrand = Brand::findOrFail($request->validated('brand_id'));
+
+        $this->authorize('create', [Lead::class, $newBrand]);
+
         $action->execute($lead, $request->validated());
 
         return redirect()
@@ -110,10 +116,10 @@ class LeadController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole('superadmin')) {
             return Brand::orderBy('name')->get();
         }
 
-        return $user->brands()->orderBy('name')->get();
+        return $user->ownedBrands()->orderBy('name')->get();
     }
 }

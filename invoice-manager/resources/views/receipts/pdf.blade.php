@@ -16,7 +16,6 @@
         img { max-width: 100%; }
         .page { max-width: 760px; margin: 0 auto; padding: 24px; }
         .kop-wrap { max-width: 760px; margin: 0 auto; }
-        .rekening-sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
         @page { size: A4; margin: 12mm; }
     </style>
 </head>
@@ -51,10 +50,13 @@
             @include('invoices._partials.totals')
         </div>
 
-        <div class="rekening-sign-grid">
-            <div>@include('invoices._partials.rekening', ['forPdf' => true])</div>
-            <div>@include('invoices._partials.sign', ['forPdf' => true])</div>
-        </div>
+        {{-- Tabel (bukan CSS grid) supaya rekening & tanda tangan tetap tampil 2 kolom saat dirender ke PDF oleh dompdf, yang tidak mendukung CSS grid. --}}
+        <table style="width:100%;border-collapse:collapse;margin-top:24px">
+            <tr>
+                <td style="width:50%;vertical-align:top;padding-right:12px">@include('invoices._partials.rekening', ['forPdf' => true])</td>
+                <td style="width:50%;vertical-align:top;padding-left:12px">@include('invoices._partials.sign', ['forPdf' => true])</td>
+            </tr>
+        </table>
     </div>
 
 </body>

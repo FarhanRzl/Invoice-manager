@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FormOrderController;
@@ -24,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('brands', BrandController::class);
+
+    Route::resource('admin-users', AdminUserController::class)->except(['show']);
 });
 
 Route::middleware(['auth'])->group(function () {
