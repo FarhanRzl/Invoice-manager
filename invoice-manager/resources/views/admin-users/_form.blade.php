@@ -19,8 +19,13 @@
 
     <div>
         <x-input-label for="password" :value="$adminUser ? 'Password Baru (opsional)' : 'Password'" />
-        <x-text-input id="password" name="password" type="password" class="mt-1 block w-full"
-            autocomplete="new-password" @if (! $adminUser) required @endif />
+        @if ($adminUser)
+            <x-text-input id="password" name="password" type="password" class="mt-1 block w-full"
+                autocomplete="new-password" />
+        @else
+            <x-text-input id="password" name="password" type="password" class="mt-1 block w-full"
+                autocomplete="new-password" required />
+        @endif
         <x-input-error :messages="$errors->get('password')" class="mt-1" />
         @if ($adminUser)
             <p class="mt-1 text-xs text-slate-400">Kosongkan jika tidak ingin mengubah password.</p>
