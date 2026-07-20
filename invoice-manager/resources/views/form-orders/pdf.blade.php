@@ -4,6 +4,7 @@
     $src = fn ($path) => $forPdf
         ? 'file://'.str_replace('\\', '/', public_path('storage/'.$path))
         : \Illuminate\Support\Facades\Storage::url($path);
+    $paketItems = collect(config('invoice_packages'))->pluck('items', 'label');
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -18,7 +19,11 @@
         .page { max-width: 760px; margin: 0 auto; padding: 24px; }
         th { background: #f7fafc; padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 700; color: #4a5568; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
         td { padding: 8px 12px; border-bottom: 1px solid #f0f4f8; font-size: 13px; }
-        @page { size: A4; margin: 12mm; }
+        /* Kop dicetak position:fixed supaya otomatis terulang di setiap halaman
+           (mis. saat Lingkup Pekerjaan meluber ke halaman berikutnya). Ruang di
+           atas setiap halaman disediakan lewat margin-top pada @page. */
+        .pdf-kop { position: fixed; top: -35mm; left: -12mm; right: -12mm; }
+        @page { size: A4; margin: 35mm 12mm 12mm 12mm; }
     </style>
 </head>
 <body>
@@ -44,8 +49,17 @@
                 <tbody>
                     @foreach ($formOrder->lingkup_pekerjaan as $i => $item)
                         <tr>
-                            <td style="text-align:center;color:#718096">{{ $i + 1 }}</td>
-                            <td>{{ $item }}</td>
+                            <td style="text-align:center;color:#718096;vertical-align:top">{{ $i + 1 }}</td>
+                            <td>
+                                {{ $item }}
+                                @if ($paketItems->has($item))
+                                    <ul style="margin:6px 0 0;padding-left:16px;color:#4a5568;font-size:11px;line-height:1.6">
+                                        @foreach ($paketItems[$item] as $fitur)
+                                            <li>{{ $fitur }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -55,8 +69,6 @@
 
     @if ($formOrder->catatan_klien || $formOrder->images->isNotEmpty())
         <div style="page-break-before:always">
-            @include('form-orders.partials.pdf-header')
-
             <div class="page">
                 @if ($formOrder->catatan_klien)
                     <div style="font-size:13px;font-weight:700;color:#1a365d;margin-bottom:8px">Catatan dari Klien</div>

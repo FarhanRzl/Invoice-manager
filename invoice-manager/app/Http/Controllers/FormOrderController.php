@@ -162,11 +162,11 @@ class FormOrderController extends Controller
                         continue;
                     }
 
-                    $descriptions[] = $item->deskripsi;
+                    $descriptions[] = $this->resolveDeskripsi($item);
 
                     if ($item->type === 'group') {
                         foreach ($item->subItems as $sub) {
-                            $descriptions[] = $sub->deskripsi;
+                            $descriptions[] = $this->resolveDeskripsi($sub);
                         }
                     }
                 }
@@ -179,5 +179,19 @@ class FormOrderController extends Controller
                 ];
             })
             ->values();
+    }
+
+    /**
+     * Item bertipe "paket" menyimpan nama paket + daftar fitur sebagai satu
+     * deskripsi multi-baris ("Paket Hemat\n• fitur 1\n• fitur 2..."). Untuk
+     * prefill lingkup pekerjaan, cukup ambil nama paketnya (baris pertama).
+     */
+    private function resolveDeskripsi($item): string
+    {
+        if ($item->type !== 'paket' || ! str_contains($item->deskripsi ?? '', "\n")) {
+            return $item->deskripsi;
+        }
+
+        return trim(strtok($item->deskripsi, "\n"));
     }
 }

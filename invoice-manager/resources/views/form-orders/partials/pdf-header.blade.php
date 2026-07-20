@@ -1,4 +1,10 @@
-    {{-- Tabel (bukan flex) supaya kop tetap tampil sejajar kiri-kanan saat dirender ke PDF oleh dompdf, yang tidak mendukung flexbox. --}}
+    {{--
+        Tabel (bukan flex) supaya kop tetap tampil sejajar kiri-kanan saat dirender ke PDF oleh
+        dompdf, yang tidak mendukung flexbox. Dibungkus div "pdf-kop" (position:fixed, lihat
+        pdf.blade.php) supaya kop otomatis terulang di setiap halaman, termasuk saat Lingkup
+        Pekerjaan meluber ke halaman berikutnya.
+    --}}
+    <div class="{{ $forPdf ? 'pdf-kop' : '' }}">
     <table style="width:100%;border-collapse:collapse;background-color:#1a365d">
         <tr>
             <td style="padding:18px 24px;vertical-align:middle">
@@ -24,3 +30,4 @@
             </td>
         </tr>
     </table>
+    </div>
