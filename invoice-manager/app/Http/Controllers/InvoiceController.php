@@ -252,6 +252,7 @@ class InvoiceController extends Controller
 
             $termModel = new InvoiceTerm([
                 'label' => $term['label'],
+                'catatan' => $term['catatan'] ?? null,
                 'persen' => $persen,
                 'nominal' => $persen > 0 ? round($total * $persen / 100, 2) : (float) ($term['nominal'] ?? 0),
                 'is_lunas' => $isLunas,

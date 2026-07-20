@@ -53,6 +53,16 @@ class UpdateFormOrderRequest extends FormRequest
 
             'remove_image_ids.*' => ['integer', 'exists:form_order_images,id'],
 
+            'revisions' => ['nullable', 'array'],
+
+            'revisions.*.catatan' => ['nullable', 'string'],
+
+            'revisions.*.file' => ['nullable', 'image', 'max:5120'],
+
+            'remove_revision_ids' => ['nullable', 'array'],
+
+            'remove_revision_ids.*' => ['integer', 'exists:form_order_revisions,id'],
+
         ];
     }
 }

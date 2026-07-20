@@ -94,12 +94,26 @@
         <h3 class="text-sm font-semibold text-slate-700 mb-4">Berkas</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             @foreach (['logo' => 'Logo', 'qris' => 'QRIS', 'ttd' => 'Tanda Tangan', 'stempel' => 'Stempel', 'materai' => 'Materai'] as $field => $label)
-                <div>
+                <div x-data="{ removeFile: false }">
                     <x-input-label for="{{ $field }}" value="{{ $label }}" />
 
                     @php $path = $brand?->{$field.'_path'}; @endphp
                     @if ($path)
-                        <img src="{{ \Illuminate\Support\Facades\Storage::url($path) }}" alt="{{ $label }}" class="mt-2 mb-2 h-16 rounded border border-slate-200 bg-white object-contain">
+                        <div class="mt-2 mb-2">
+                            <div class="relative inline-block" x-show="!removeFile">
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($path) }}" alt="{{ $label }}"
+                                    class="h-16 rounded border border-slate-200 bg-white object-contain">
+                                <button type="button" @click="removeFile = true" title="Hapus {{ $label }}"
+                                    class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 hover:bg-red-700 text-white border-2 border-white flex items-center justify-center text-xs font-bold leading-none">
+                                    &times;
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-400" x-show="removeFile" x-cloak>
+                                <span>{{ $label }} akan dihapus saat disimpan.</span>
+                                <button type="button" @click="removeFile = false" class="text-navy-600 hover:underline">Batalkan</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="remove_{{ $field }}" :value="removeFile ? 1 : 0">
                     @endif
 
                     <input id="{{ $field }}" name="{{ $field }}" type="file" accept="image/*"

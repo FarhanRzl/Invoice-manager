@@ -5,7 +5,7 @@
     $src = fn ($path) => str_starts_with($path, 'data:')
         ? $path
         : ($forPdf
-            ? 'file:///'.str_replace('\\', '/', public_path('storage/'.$path))
+            ? 'file://'.str_replace('\\', '/', public_path('storage/'.$path))
             : \Illuminate\Support\Facades\Storage::url($path));
 @endphp
 
@@ -22,15 +22,17 @@
             <td style="text-align:right">
                 <div style="display:inline-block;text-align:center;min-width:160px">
                     <div style="font-size:11px;color:#64748b;margin-bottom:8px">{{ $sign['ttd_nama'] ?? $invoice->brand->name }},</div>
-                    <div style="position:relative;height:80px;text-align:center">
+                    <div style="position:relative;height:100px">
                         @if (! empty($sign['stempel_path']))
-                            <img src="{{ $src($sign['stempel_path']) }}" style="position:absolute;top:0;left:50%;margin-left:-48px;opacity:.6;height:96px;width:96px;object-fit:contain">
-                        @endif
-                        @if (! empty($sign['ttd_path']))
-                            <img src="{{ $src($sign['ttd_path']) }}" style="position:relative;height:64px;max-width:120px;object-fit:contain">
+                            <img src="{{ $src($sign['stempel_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-50px;margin-left:-50px;opacity:.55;height:100px;width:100px;object-fit:contain">
                         @endif
                         @if (! empty($sign['materai_path']))
-                            <img src="{{ $src($sign['materai_path']) }}" style="position:absolute;bottom:0;right:0;height:48px;width:48px;object-fit:contain">
+                            <img src="{{ $src($sign['materai_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-28px;margin-left:-28px;height:56px;width:56px;object-fit:contain">
+                        @endif
+                        @if (! empty($sign['ttd_path']))
+                            <div style="position:absolute;top:50%;left:0;right:0;margin-top:-32px;text-align:center">
+                                <img src="{{ $src($sign['ttd_path']) }}" style="height:64px;max-width:140px;object-fit:contain">
+                            </div>
                         @endif
                     </div>
                     <div style="border-top:1px solid #334155;padding-top:4px;margin-top:4px;font-size:13px;font-weight:700">{{ $sign['ttd_nama'] ?? $invoice->brand->name }}</div>

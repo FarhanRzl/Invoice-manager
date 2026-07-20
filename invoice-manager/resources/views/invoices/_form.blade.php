@@ -41,6 +41,7 @@
         ? $invoice->terms->map(fn ($term) => [
             'id' => $term->id,
             'label' => $term->label,
+            'catatan' => $term->catatan ?? '',
             'persen' => (string) $term->persen,
             'nominal' => (string) $term->nominal,
             'is_lunas' => (bool) $term->is_lunas,
@@ -102,7 +103,7 @@
             this.uid++;
             const labels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
             const idx = this.terms.length;
-            this.terms.push({ id: null, label: 'Termin ' + (labels[idx] || (idx + 1)), persen: '0', nominal: '0', is_lunas: false, tanggal_lunas: '', _uid: 't' + this.uid });
+            this.terms.push({ id: null, label: 'Termin ' + (labels[idx] || (idx + 1)), catatan: '', persen: '0', nominal: '0', is_lunas: false, tanggal_lunas: '', _uid: 't' + this.uid });
         },
         removeTerm(uid) {
             this.terms = this.terms.filter(t => t._uid !== uid);
@@ -114,7 +115,7 @@
                 const total = this.total();
                 this.terms = pcts.map((pct, i) => {
                     this.uid++;
-                    return { id: null, label: 'Termin ' + labels[i], persen: String(pct), nominal: String(Math.round(total * pct / 100)), is_lunas: false, tanggal_lunas: '', _uid: 't' + this.uid };
+                    return { id: null, label: 'Termin ' + labels[i], catatan: '', persen: String(pct), nominal: String(Math.round(total * pct / 100)), is_lunas: false, tanggal_lunas: '', _uid: 't' + this.uid };
                 });
             }
         },
@@ -131,7 +132,7 @@
             if (val === 'custom') {
                 this.terms = [0, 1].map(i => {
                     this.uid++;
-                    return { id: null, label: 'Termin ' + labels[i], persen: '0', nominal: '0', is_lunas: false, tanggal_lunas: '', _uid: 't' + this.uid };
+                    return { id: null, label: 'Termin ' + labels[i], catatan: '', persen: '0', nominal: '0', is_lunas: false, tanggal_lunas: '', _uid: 't' + this.uid };
                 });
                 return;
             }
@@ -142,6 +143,7 @@
                 return {
                     id: null,
                     label: 'Termin ' + (labels[i] || (i + 1)),
+                    catatan: '',
                     persen: String(pct),
                     nominal: String(Math.round(total * pct / 100)),
                     is_lunas: false,
@@ -532,6 +534,12 @@
                             </div>
                         </div>
                         <p class="text-[11px] text-slate-400 mt-1 ml-1" x-show="parseFloat(term.persen) > 0">Nominal otomatis dihitung dari persen terhadap total invoice</p>
+
+                        <div class="mt-2">
+                            <textarea :name="'terms[' + index + '][catatan]'" x-model="term.catatan" rows="2"
+                                placeholder="Catatan / deskripsi termin ini (opsional, misal: syarat pencairan atau rincian pekerjaan)"
+                                class="block w-full text-xs border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"></textarea>
+                        </div>
                     </div>
                 </template>
             </div>

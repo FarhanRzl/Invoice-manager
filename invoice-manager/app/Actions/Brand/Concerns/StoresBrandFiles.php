@@ -2,11 +2,14 @@
 
 namespace App\Actions\Brand\Concerns;
 
+use App\Actions\Concerns\StoresImagesAsPng;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 trait StoresBrandFiles
 {
+    use StoresImagesAsPng;
+
     /**
      * @var array<string, string>
      */
@@ -21,19 +24,24 @@ trait StoresBrandFiles
     protected function storeBrandFiles(array $data, ?object $existingBrand = null): array
     {
         foreach ($this->brandFileMap as $field => $pathColumn) {
-            if (! isset($data[$field]) || ! $data[$field] instanceof UploadedFile) {
-                unset($data[$field]);
+            $removeField = 'remove_'.$field;
+            $newFile = $data[$field] ?? null;
+            $hasNewFile = $newFile instanceof UploadedFile;
+            $shouldRemove = ! empty($data[$removeField]);
 
-                continue;
-            }
+            unset($data[$field], $data[$removeField]);
 
-            if ($existingBrand && $existingBrand->{$pathColumn}) {
+            if ($hasNewFile) {
+                if ($existingBrand && $existingBrand->{$pathColumn}) {
+                    Storage::disk('public')->delete($existingBrand->{$pathColumn});
+                }
+
+                $data[$pathColumn] = $this->storeImageAsPng($newFile, 'brands');
+            } elseif ($shouldRemove && $existingBrand && $existingBrand->{$pathColumn}) {
                 Storage::disk('public')->delete($existingBrand->{$pathColumn});
+
+                $data[$pathColumn] = null;
             }
-
-            $data[$pathColumn] = $data[$field]->store('brands', 'public');
-
-            unset($data[$field]);
         }
 
         return $data;

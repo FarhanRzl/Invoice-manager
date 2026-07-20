@@ -81,6 +81,8 @@ class StoreInvoiceRequest extends FormRequest
 
             'terms.*.label' => ['required', 'string'],
 
+            'terms.*.catatan' => ['nullable', 'string'],
+
             'terms.*.persen' => ['required', 'numeric', 'between:0,100'],
 
             'terms.*.nominal' => ['nullable', 'numeric', 'min:0'],

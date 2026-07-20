@@ -2,14 +2,16 @@
 
 namespace App\Actions\FormOrder;
 
+use App\Actions\Concerns\StoresImagesAsPng;
 use App\Models\Brand;
 use App\Models\FormOrder;
 use App\Services\FormOrderNumberService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class CreateFormOrderAction
 {
+    use StoresImagesAsPng;
+
     public function __construct(
         protected FormOrderNumberService $numberService,
     ) {
@@ -48,11 +50,23 @@ class CreateFormOrderAction
                     continue;
                 }
 
-                $path = $image['file']->store('form-orders/images', 'public');
+                $path = $this->storeImageAsPng($image['file'], 'form-orders/images');
 
                 $formOrder->images()->create([
                     'path' => $path,
                     'caption' => $image['caption'] ?? null,
+                    'urutan' => $index + 1,
+                ]);
+            }
+
+            foreach ($data['revisions'] ?? [] as $index => $revision) {
+                if (empty($revision['catatan']) && empty($revision['file'])) {
+                    continue;
+                }
+
+                $formOrder->revisions()->create([
+                    'catatan' => $revision['catatan'] ?? null,
+                    'path' => ! empty($revision['file']) ? $this->storeImageAsPng($revision['file'], 'form-orders/revisions') : null,
                     'urutan' => $index + 1,
                 ]);
             }

@@ -2,12 +2,15 @@
 
 namespace App\Actions\FormOrder;
 
+use App\Actions\Concerns\StoresImagesAsPng;
 use App\Models\FormOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class UpdateFormOrderAction
 {
+    use StoresImagesAsPng;
+
     public function execute(FormOrder $formOrder, array $data): FormOrder
     {
         return DB::transaction(function () use ($formOrder, $data) {
@@ -28,6 +31,9 @@ class UpdateFormOrderAction
             $this->removeImages($formOrder, $data['remove_image_ids'] ?? []);
             $this->updateExistingCaptions($formOrder, $data['existing_images'] ?? []);
             $this->addNewImages($formOrder, $data['images'] ?? []);
+
+            $this->removeRevisions($formOrder, $data['remove_revision_ids'] ?? []);
+            $this->addNewRevisions($formOrder, $data['revisions'] ?? []);
 
             return $formOrder->refresh();
         });
@@ -65,11 +71,47 @@ class UpdateFormOrderAction
                 continue;
             }
 
-            $path = $image['file']->store('form-orders/images', 'public');
+            $path = $this->storeImageAsPng($image['file'], 'form-orders/images');
 
             $formOrder->images()->create([
                 'path' => $path,
                 'caption' => $image['caption'] ?? null,
+                'urutan' => $nextUrutan++,
+            ]);
+        }
+    }
+
+    protected function removeRevisions(FormOrder $formOrder, array $removeIds): void
+    {
+        if (empty($removeIds)) {
+            return;
+        }
+
+        $revisions = $formOrder->revisions()->whereIn('id', $removeIds)->get();
+
+        foreach ($revisions as $revision) {
+            if ($revision->path) {
+                Storage::disk('public')->delete($revision->path);
+            }
+
+            $revision->delete();
+        }
+    }
+
+    protected function addNewRevisions(FormOrder $formOrder, array $revisions): void
+    {
+        $nextUrutan = (int) $formOrder->revisions()->max('urutan') + 1;
+
+        foreach ($revisions as $revision) {
+            if (empty($revision['catatan']) && empty($revision['file'])) {
+                continue;
+            }
+
+            $path = ! empty($revision['file']) ? $this->storeImageAsPng($revision['file'], 'form-orders/revisions') : null;
+
+            $formOrder->revisions()->create([
+                'catatan' => $revision['catatan'] ?? null,
+                'path' => $path,
                 'urutan' => $nextUrutan++,
             ]);
         }

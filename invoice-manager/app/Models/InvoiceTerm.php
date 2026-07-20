@@ -10,6 +10,7 @@ class InvoiceTerm extends Model
     protected $fillable = [
         'invoice_id',
         'label',
+        'catatan',
         'persen',
         'nominal',
         'is_lunas',

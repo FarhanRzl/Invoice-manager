@@ -2,12 +2,15 @@
 
 namespace App\Actions\Invoice\Concerns;
 
+use App\Actions\Concerns\StoresImagesAsPng;
 use App\Models\Brand;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 trait BuildsInvoiceSnapshots
 {
+    use StoresImagesAsPng;
+
     /**
      * Snapshot kop surat brand ke invoice, plus gambar kop custom (opsional).
      */
@@ -33,7 +36,7 @@ trait BuildsInvoiceSnapshots
                 Storage::disk('public')->delete($existing['custom_image_path']);
             }
 
-            $config['custom_image_path'] = $data['kop_image']->store('invoices/kop', 'public');
+            $config['custom_image_path'] = $this->storeImageAsPng($data['kop_image'], 'invoices/kop');
         }
 
         return $config;
@@ -64,7 +67,7 @@ trait BuildsInvoiceSnapshots
                 Storage::disk('public')->delete($existing);
             }
 
-            return $data['qris_image']->store('invoices/qris', 'public');
+            return $this->storeImageAsPng($data['qris_image'], 'invoices/qris');
         }
 
         return $existing ?: $brand->qris_path;

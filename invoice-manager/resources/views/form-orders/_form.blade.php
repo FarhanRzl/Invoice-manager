@@ -14,6 +14,7 @@
     $initialLingkup = collect($initialLingkup)->values()->all();
 
     $existingImages = $formOrder?->images ?? collect();
+    $existingRevisions = $formOrder?->revisions ?? collect();
 
     $packages = collect(config('invoice_packages'))->map(fn ($p) => $p['items'])->all();
     $invoiceItemsMap = $invoices->pluck('items', 'id')->all();
@@ -50,6 +51,15 @@
         },
         removeImageSlot(uid) {
             this.images = this.images.filter(im => im._uid !== uid);
+        },
+        revisions: [],
+        revUid: 0,
+        addRevisionSlot() {
+            this.revUid++;
+            this.revisions.push({ _uid: 'newrev' + this.revUid, catatan: '' });
+        },
+        removeRevisionSlot(uid) {
+            this.revisions = this.revisions.filter(r => r._uid !== uid);
         },
     }"
     class="space-y-8"
@@ -196,6 +206,60 @@
         <textarea id="catatan_klien" name="catatan_klien" rows="3"
             class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('catatan_klien', $formOrder->catatan_klien ?? '') }}</textarea>
         <x-input-error :messages="$errors->get('catatan_klien')" class="mt-1" />
+    </div>
+
+    @if ($existingRevisions->isNotEmpty())
+        <div class="border-t border-slate-200 pt-6">
+            <h3 class="text-sm font-semibold text-slate-700 mb-3">Riwayat Revisi</h3>
+            <div class="space-y-3">
+                @foreach ($existingRevisions as $rev)
+                    <div class="border border-slate-200 rounded-lg p-3 flex gap-3">
+                        @if ($rev->path)
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($rev->path) }}" class="h-20 w-20 object-cover rounded border border-slate-200">
+                        @endif
+                        <div class="flex-1">
+                            <div class="text-xs text-slate-400 mb-1">{{ $rev->created_at->translatedFormat('d M Y, H:i') }}</div>
+                            <p class="text-sm text-slate-700 whitespace-pre-line mb-2">{{ $rev->catatan ?: '-' }}</p>
+                            <label class="flex items-center gap-2 text-xs text-red-600">
+                                <input type="checkbox" name="remove_revision_ids[]" value="{{ $rev->id }}">
+                                Hapus revisi ini
+                            </label>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    <div class="border-t border-slate-200 pt-6">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-semibold text-slate-700">Tambah Revisi</h3>
+            <button type="button" @click="addRevisionSlot()" class="text-sm text-navy-500 hover:text-navy-700 font-medium">
+                + Tambah Revisi
+            </button>
+        </div>
+
+        <p class="text-sm text-slate-400" x-show="revisions.length === 0">Belum ada revisi baru ditambahkan.</p>
+
+        <div class="space-y-3">
+            <template x-for="(rev, index) in revisions" :key="rev._uid">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-slate-50 rounded-lg p-3">
+                    <div class="sm:col-span-6">
+                        <textarea :name="'revisions[' + index + '][catatan]'" x-model="rev.catatan" rows="2"
+                            placeholder="Catatan revisi..."
+                            class="block w-full text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"></textarea>
+                    </div>
+                    <div class="sm:col-span-5">
+                        <input type="file" accept="image/*" :name="'revisions[' + index + '][file]'"
+                            class="block w-full text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-navy-50 file:text-navy-600">
+                    </div>
+                    <div class="sm:col-span-1 flex justify-end">
+                        <button type="button" @click="removeRevisionSlot(rev._uid)" class="text-red-500 hover:text-red-700 text-sm">&times;</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <p class="text-xs text-slate-400 mt-2">Tanggal revisi dicatat otomatis sesuai waktu Form Order disimpan.</p>
     </div>
 
     @if ($existingImages->isNotEmpty())

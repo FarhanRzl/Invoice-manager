@@ -6,13 +6,13 @@
     $src = fn ($path) => str_starts_with($path, 'data:')
         ? $path
         : ($forPdf
-            ? 'file:///'.str_replace('\\', '/', public_path('storage/'.$path))
+            ? 'file://'.str_replace('\\', '/', public_path('storage/'.$path))
             : \Illuminate\Support\Facades\Storage::url($path));
 @endphp
 
 @if (! empty($kop['custom_image_path']))
     <div>
-        <img src="{{ $src($kop['custom_image_path']) }}" alt="Kop surat" style="width:100%;max-height:160px;object-fit:contain;background:#fff;display:block">
+        <img src="{{ $src($kop['custom_image_path']) }}" alt="Kop surat" style="width:100%;max-height:160px;object-fit:contain;display:block">
     </div>
 @else
     {{-- Tabel (bukan flex/grid) supaya kop tetap tampil sejajar kiri-kanan baik di browser
@@ -24,7 +24,7 @@
                     <tr>
                         @if (! empty($kop['logo_path']))
                             <td style="vertical-align:middle;padding-right:12px">
-                                <img src="{{ $src($kop['logo_path']) }}" alt="{{ $kop['name'] ?? '' }}" style="height:48px;width:48px;object-fit:contain;border-radius:6px;background:#fff;padding:4px">
+                                <img src="{{ $src($kop['logo_path']) }}" alt="{{ $kop['name'] ?? '' }}" style="height:48px;width:48px;object-fit:contain;border-radius:6px">
                             </td>
                         @endif
                         <td style="vertical-align:middle">

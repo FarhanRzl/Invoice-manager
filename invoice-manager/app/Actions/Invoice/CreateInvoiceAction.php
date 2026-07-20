@@ -82,6 +82,7 @@ class CreateInvoiceAction
 
                 $invoice->terms()->create([
                     'label' => $term['label'],
+                    'catatan' => $term['catatan'] ?? null,
                     'persen' => $term['persen'],
                     'nominal' => $term['nominal'] ?? 0,
                     'is_lunas' => $isLunas,

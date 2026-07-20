@@ -65,6 +65,11 @@ class FormOrder extends Model
         return $this->hasMany(FormOrderImage::class)->orderBy('urutan');
     }
 
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(FormOrderRevision::class)->orderBy('urutan');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accessor

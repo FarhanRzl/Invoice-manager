@@ -6,7 +6,7 @@
     $sphSrc = fn ($path) => str_starts_with($path, 'data:')
         ? $path
         : ($sphForPdf
-            ? 'file:///'.str_replace('\\', '/', public_path('storage/'.$path))
+            ? 'file://'.str_replace('\\', '/', public_path('storage/'.$path))
             : \Illuminate\Support\Facades\Storage::url($path));
 @endphp
 
@@ -39,15 +39,17 @@
             <div style="text-align:center;min-width:200px">
                 <div style="font-size:12px;color:#718096;margin-bottom:8px">Hormat Kami,</div>
                 @if ($sphHasSign)
-                    <div style="position:relative;width:200px;height:100px;margin:0 auto;display:flex;align-items:center;justify-content:center">
+                    <div style="position:relative;width:200px;height:100px;margin:0 auto">
                         @if (! empty($sphSign['stempel_path']))
-                            <img src="{{ $sphSrc($sphSign['stempel_path']) }}" style="position:absolute;opacity:.6;max-width:100px;max-height:100px;object-fit:contain">
-                        @endif
-                        @if (! empty($sphSign['ttd_path']))
-                            <img src="{{ $sphSrc($sphSign['ttd_path']) }}" style="position:relative;max-width:120px;max-height:70px;object-fit:contain">
+                            <img src="{{ $sphSrc($sphSign['stempel_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-50px;margin-left:-50px;opacity:.55;height:100px;width:100px;object-fit:contain">
                         @endif
                         @if (! empty($sphSign['materai_path']))
-                            <img src="{{ $sphSrc($sphSign['materai_path']) }}" style="position:absolute;bottom:0;right:0;max-width:50px;max-height:50px;object-fit:contain">
+                            <img src="{{ $sphSrc($sphSign['materai_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-28px;margin-left:-28px;height:56px;width:56px;object-fit:contain">
+                        @endif
+                        @if (! empty($sphSign['ttd_path']))
+                            <div style="position:absolute;top:50%;left:0;right:0;margin-top:-32px;text-align:center">
+                                <img src="{{ $sphSrc($sphSign['ttd_path']) }}" style="height:64px;max-width:140px;object-fit:contain">
+                            </div>
                         @endif
                     </div>
                 @else

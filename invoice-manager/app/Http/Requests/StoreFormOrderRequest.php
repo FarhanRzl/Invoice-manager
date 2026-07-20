@@ -45,6 +45,12 @@ class StoreFormOrderRequest extends FormRequest
 
             'images.*.caption' => ['nullable', 'string', 'max:255'],
 
+            'revisions' => ['nullable', 'array'],
+
+            'revisions.*.catatan' => ['nullable', 'string'],
+
+            'revisions.*.file' => ['nullable', 'image', 'max:5120'],
+
         ];
     }
 }

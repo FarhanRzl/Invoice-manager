@@ -118,6 +118,25 @@
             @endif
         </div>
 
+        @if ($formOrder->revisions->isNotEmpty())
+            <div class="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 class="text-sm font-semibold text-navy-600 mb-4">Revisi</h3>
+                <div class="space-y-4">
+                    @foreach ($formOrder->revisions as $rev)
+                        <div class="border border-slate-200 rounded-lg p-4 flex gap-4">
+                            @if ($rev->path)
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($rev->path) }}" class="h-24 w-24 object-cover rounded border border-slate-200 shrink-0">
+                            @endif
+                            <div>
+                                <div class="text-xs text-slate-400 mb-1">{{ $rev->created_at->translatedFormat('d M Y, H:i') }}</div>
+                                <p class="text-sm text-slate-700 whitespace-pre-line">{{ $rev->catatan ?: '-' }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         @if (! $formOrder->is_locked)
             <form action="{{ route('form-orders.destroy', $formOrder) }}" method="POST"
                   onsubmit="return confirm('Hapus form order {{ $formOrder->nomor }}? Tindakan ini tidak dapat dibatalkan.');">

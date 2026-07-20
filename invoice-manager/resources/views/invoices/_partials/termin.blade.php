@@ -41,6 +41,9 @@
                     <tr class="{{ $term->is_lunas ? 'bg-emerald-50/50' : '' }}">
                         <td class="px-5 py-3 {{ $term->is_lunas ? 'text-slate-400 line-through' : '' }}">
                             {{ $term->is_lunas ? '✓ ' : '' }}{{ $term->label }}
+                            @if ($term->catatan)
+                                <div class="text-[11px] text-slate-400 no-underline whitespace-pre-line">{{ $term->catatan }}</div>
+                            @endif
                             @if ($term->is_lunas)
                                 <div class="text-[11px] italic text-emerald-600 no-underline">
                                     {{ $term->tanggal_lunas ? 'Dibayar: '.$term->tanggal_lunas->format('d M Y') : 'Sudah Dibayar' }}

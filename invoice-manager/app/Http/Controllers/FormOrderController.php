@@ -71,7 +71,7 @@ class FormOrderController extends Controller
     {
         $this->authorize('view', $form_order);
 
-        $form_order->load('brand', 'creator', 'invoice', 'images');
+        $form_order->load('brand', 'creator', 'invoice', 'images', 'revisions');
 
         return view('form-orders.show', ['formOrder' => $form_order]);
     }
@@ -80,7 +80,7 @@ class FormOrderController extends Controller
     {
         $this->authorize('update', $form_order);
 
-        $form_order->load('images');
+        $form_order->load('images', 'revisions');
 
         $brands = $this->brandsForUser();
         $invoices = $this->invoicesForLingkupPrefill($brands);
@@ -118,7 +118,7 @@ class FormOrderController extends Controller
     {
         $this->authorize('view', $form_order);
 
-        $form_order->load('brand', 'images');
+        $form_order->load('brand', 'images', 'revisions');
 
         $filename = str_replace(['/', '\\'], '-', "FormOrder-{$form_order->nomor}").'.pdf';
 

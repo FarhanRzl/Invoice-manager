@@ -2,7 +2,7 @@
     $forPdf = $forPdf ?? false;
     $brand = $formOrder->brand;
     $src = fn ($path) => $forPdf
-        ? 'file:///'.str_replace('\\', '/', public_path('storage/'.$path))
+        ? 'file://'.str_replace('\\', '/', public_path('storage/'.$path))
         : \Illuminate\Support\Facades\Storage::url($path);
 @endphp
 <!DOCTYPE html>
@@ -23,23 +23,7 @@
 </head>
 <body>
 
-    <div style="background:#1a365d;padding:18px 24px;display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;align-items:center;gap:12px">
-            @if ($brand->logo_path)
-                <img src="{{ $src($brand->logo_path) }}" style="height:44px;max-width:130px;object-fit:contain">
-            @endif
-            <div>
-                <div style="font-size:18px;font-weight:800;color:#fff">{{ $brand->name }}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.7)">{{ $brand->address }}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.7)">{{ $brand->phone }} {{ $brand->email ? '· '.$brand->email : '' }}</div>
-            </div>
-        </div>
-        <div style="text-align:right">
-            <div style="font-size:22px;font-weight:800;color:#c9a227;letter-spacing:2px">FORM ORDER</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.8)">{{ $formOrder->nomor }}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.7)">{{ $formOrder->tanggal_order->format('d M Y') }}</div>
-        </div>
-    </div>
+    @include('form-orders.partials.pdf-header')
 
     <div class="page">
         <table style="margin-bottom:20px">
@@ -67,22 +51,51 @@
                 </tbody>
             </table>
         @endif
+    </div>
 
-        @if ($formOrder->catatan_klien)
-            <div style="font-size:13px;font-weight:700;color:#1a365d;margin-bottom:8px">Catatan dari Klien</div>
-            <div style="background:#f7fafc;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;white-space:pre-wrap;margin-bottom:20px">{{ $formOrder->catatan_klien }}</div>
-        @endif
+    @if ($formOrder->catatan_klien || $formOrder->images->isNotEmpty())
+        <div style="page-break-before:always">
+            @include('form-orders.partials.pdf-header')
 
-        @if ($formOrder->images->isNotEmpty())
-            <div style="font-size:13px;font-weight:700;color:#1a365d;margin-bottom:8px">Lampiran Gambar</div>
-            @foreach ($formOrder->images as $img)
-                <div style="margin-bottom:14px">
-                    <img src="{{ $src($img->path) }}" style="max-width:300px;max-height:220px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;display:block">
-                    @if ($img->caption)
-                        <div style="font-size:11px;color:#4a5568;margin-top:4px">{{ $img->caption }}</div>
-                    @endif
-                </div>
-            @endforeach
+            <div class="page">
+                @if ($formOrder->catatan_klien)
+                    <div style="font-size:13px;font-weight:700;color:#1a365d;margin-bottom:8px">Catatan dari Klien</div>
+                    <div style="background:#f7fafc;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;white-space:pre-wrap;margin-bottom:20px">{{ $formOrder->catatan_klien }}</div>
+                @endif
+
+                @if ($formOrder->images->isNotEmpty())
+                    <div style="font-size:13px;font-weight:700;color:#1a365d;margin-bottom:8px">Lampiran Gambar</div>
+                    @foreach ($formOrder->images as $img)
+                        <div style="margin-bottom:14px">
+                            <img src="{{ $src($img->path) }}" style="max-width:300px;max-height:220px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;display:block">
+                            @if ($img->caption)
+                                <div style="font-size:11px;color:#4a5568;margin-top:4px">{{ $img->caption }}</div>
+                            @endif
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+    @endif
+
+    <div class="page">
+        @if ($formOrder->revisions->isNotEmpty())
+            <div style="font-size:13px;font-weight:700;color:#1a365d;margin-bottom:8px;margin-top:20px">Revisi</div>
+            <table style="margin-bottom:20px">
+                @foreach ($formOrder->revisions as $rev)
+                    <tr>
+                        <td style="vertical-align:top;padding:8px 12px;border-bottom:1px solid #f0f4f8">
+                            @if ($rev->path)
+                                <img src="{{ $src($rev->path) }}" style="width:90px;height:90px;object-fit:cover;border:1px solid #e2e8f0;border-radius:6px;display:block">
+                            @endif
+                        </td>
+                        <td style="vertical-align:top;padding:8px 12px;border-bottom:1px solid #f0f4f8">
+                            <div style="font-size:10px;color:#a0aec0;margin-bottom:3px">{{ $rev->created_at->format('d M Y, H:i') }}</div>
+                            <div style="font-size:12px;white-space:pre-wrap">{{ $rev->catatan ?: '-' }}</div>
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
         @endif
 
         <div style="margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;text-align:center;font-size:10px;color:#a0aec0">
