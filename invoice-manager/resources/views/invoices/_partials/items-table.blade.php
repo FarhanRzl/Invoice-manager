@@ -1,9 +1,36 @@
 @php
     $topItems = $invoice->items->whereNull('parent_item_id')->sortBy('urutan');
+    $repeatHeader = $repeatHeader ?? false;
 @endphp
 
+{{-- thead diulang otomatis oleh browser di setiap halaman cetak saat tabel meluber,
+     jadi kop surat & info klien disisipkan di sini supaya tetap tampil di halaman 2+. --}}
 <table class="w-full text-sm">
     <thead>
+        @if ($repeatHeader)
+            <tr>
+                <td colspan="5" style="padding:0;border-bottom:none">
+                    <div class="kop-wrap" style="margin-bottom:16px">
+                        @include('invoices._partials.kop', ['variant' => 'invoice'])
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #e2e8f0">
+                        <div>
+                            <div style="font-size:11px;font-weight:700;color:#a0aec0;letter-spacing:.5px;margin-bottom:4px">DITAGIHKAN KEPADA</div>
+                            <div style="font-size:16px;font-weight:700;color:#1a365d">{{ $invoice->klien }}</div>
+                            @if ($invoice->alamat)<div style="font-size:12px;color:#718096;margin-top:2px">{{ $invoice->alamat }}</div>@endif
+                            @if ($invoice->phone)<div style="font-size:12px;color:#718096">{{ $invoice->phone }}</div>@endif
+                            @if ($invoice->email)<div style="font-size:12px;color:#718096">{{ $invoice->email }}</div>@endif
+                        </div>
+                        <div style="text-align:right">
+                            <div style="font-size:11px;font-weight:700;color:#a0aec0;margin-bottom:4px">STATUS</div>
+                            <div style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;background:{{ $invoice->status === 'lunas' ? '#c6f6d5' : '#fef3cd' }};color:{{ $invoice->status === 'lunas' ? '#22543d' : '#744210' }};display:inline-block">
+                                {{ $invoice->status === 'lunas' ? 'Lunas' : 'Menunggu' }}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        @endif
         <tr class="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
             <th class="text-left px-5 py-2.5" style="text-align:left">Deskripsi</th>
             <th class="text-right px-5 py-2.5" style="text-align:right;white-space:nowrap">Volume</th>
