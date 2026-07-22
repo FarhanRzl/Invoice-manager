@@ -53,6 +53,9 @@
                         <th class="text-left px-5 py-2.5">Brand</th>
                         <th class="text-left px-5 py-2.5">Klien</th>
                         <th class="text-left px-5 py-2.5">Tanggal</th>
+                        @if (config('features.drafter_tasks'))
+                            <th class="text-left px-5 py-2.5">Progress</th>
+                        @endif
                         <th class="text-left px-5 py-2.5">Status</th>
                         <th class="text-right px-5 py-2.5">Aksi</th>
                     </tr>
@@ -68,6 +71,20 @@
                             <td class="px-5 py-3">{{ $fo->brand->name ?? '-' }}</td>
                             <td class="px-5 py-3">{{ $fo->nama_klien }}</td>
                             <td class="px-5 py-3">{{ $fo->tanggal_order->format('d M Y') }}</td>
+                            @if (config('features.drafter_tasks'))
+                                <td class="px-5 py-3">
+                                    @if ($fo->tasks->isNotEmpty())
+                                        <div class="flex items-center gap-2 w-28">
+                                            <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                <div class="h-full bg-emerald-500" style="width: {{ $fo->progress }}%"></div>
+                                            </div>
+                                            <span class="text-xs text-slate-500">{{ $fo->progress }}%</span>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-slate-300">-</span>
+                                    @endif
+                                </td>
+                            @endif
                             <td class="px-5 py-3">
                                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full
                                     {{ $fo->status === 'selesai' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
@@ -99,7 +116,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-10 text-slate-400">Belum ada form order.</td>
+                            <td colspan="{{ config('features.drafter_tasks') ? 7 : 6 }}" class="text-center py-10 text-slate-400">Belum ada form order.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -11,6 +11,8 @@
         ['contracts.index',  'Surat Kontrak',      'contract',       ['contracts.*']],
     ];
 
+    $utama[] = ['tasks.index', 'Tugas Saya', 'check-circle', ['tasks.*']];
+
     $manajemen = [
         ['brands.index', 'Kelola Brand',    'building'],
         ['leads.index',  'Laporan Leads',   'target'],
@@ -112,6 +114,23 @@
                             <x-icon name="settings" class="w-5 h-5 shrink-0" />
                             <span>Kelola Admin</span>
                         </a>
+                    </li>
+                    @php $draftersExist = \Illuminate\Support\Facades\Route::has('drafters.index'); @endphp
+                    <li>
+                        @if ($draftersExist)
+                            <a href="{{ route('drafters.index') }}"
+                               class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition
+                                      {{ request()->routeIs('drafters.*') ? 'bg-white/10 text-gold-400' : 'text-navy-100/80 hover:bg-white/5 hover:text-white' }}">
+                                <x-icon name="user-group" class="w-5 h-5 shrink-0" />
+                                <span>Kelola Drafter</span>
+                            </a>
+                        @else
+                            <span class="group flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium text-navy-100/30 cursor-not-allowed">
+                                <x-icon name="user-group" class="w-5 h-5 shrink-0" />
+                                <span>Kelola Drafter</span>
+                                <span class="ml-auto text-[9px] font-bold uppercase tracking-wide bg-white/5 text-navy-100/40 rounded px-1.5 py-0.5">Segera</span>
+                            </span>
+                        @endif
                     </li>
                 </ul>
             </div>

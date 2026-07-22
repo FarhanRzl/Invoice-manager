@@ -9,6 +9,7 @@ use App\Http\Requests\StoreFormOrderRequest;
 use App\Http\Requests\UpdateFormOrderRequest;
 use App\Models\Brand;
 use App\Models\FormOrder;
+use App\Models\FormOrderTask;
 use App\Models\Invoice;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class FormOrderController extends Controller
 
         $user = auth()->user();
 
-        $formOrders = FormOrder::with('brand')
+        $formOrders = FormOrder::with('brand', 'tasks')
             ->when(
                 ! $user->hasRole('superadmin'),
                 fn ($query) => $query->whereIn('brand_id', $user->ownedBrands()->pluck('id'))
@@ -50,8 +51,9 @@ class FormOrderController extends Controller
 
         $brands = $this->brandsForUser();
         $invoices = $this->invoicesForLingkupPrefill($brands);
+        $brandDraftersMap = $this->brandDraftersMap($brands);
 
-        return view('form-orders.create', compact('brands', 'invoices'));
+        return view('form-orders.create', compact('brands', 'invoices', 'brandDraftersMap'));
     }
 
     public function store(StoreFormOrderRequest $request, CreateFormOrderAction $action)
@@ -71,21 +73,31 @@ class FormOrderController extends Controller
     {
         $this->authorize('view', $form_order);
 
-        $form_order->load('brand', 'creator', 'invoice', 'images', 'revisions');
+        $form_order->load('brand', 'creator', 'invoice', 'images', 'revisions', 'tasks.assignee');
 
-        return view('form-orders.show', ['formOrder' => $form_order]);
+        $taskDrafters = config('features.drafter_tasks')
+            ? $form_order->brand->users()->role('drafter')->orderBy('name')->get(['users.id', 'users.name'])
+            : collect();
+
+        return view('form-orders.show', ['formOrder' => $form_order, 'taskDrafters' => $taskDrafters]);
     }
 
     public function edit(FormOrder $form_order)
     {
         $this->authorize('update', $form_order);
 
-        $form_order->load('images', 'revisions');
+        $form_order->load('images', 'revisions', 'tasks');
 
         $brands = $this->brandsForUser();
         $invoices = $this->invoicesForLingkupPrefill($brands);
+        $brandDraftersMap = $this->brandDraftersMap($brands);
 
-        return view('form-orders.edit', ['formOrder' => $form_order, 'brands' => $brands, 'invoices' => $invoices]);
+        return view('form-orders.edit', [
+            'formOrder' => $form_order,
+            'brands' => $brands,
+            'invoices' => $invoices,
+            'brandDraftersMap' => $brandDraftersMap,
+        ]);
     }
 
     public function update(UpdateFormOrderRequest $request, FormOrder $form_order, UpdateFormOrderAction $action)
@@ -124,6 +136,27 @@ class FormOrderController extends Controller
 
         return Pdf::loadView('form-orders.pdf', ['formOrder' => $form_order, 'forPdf' => true])
             ->stream($filename);
+    }
+
+    public function assignTask(Request $request, FormOrder $form_order, FormOrderTask $task)
+    {
+        $this->authorize('update', $form_order);
+
+        abort_unless($task->form_order_id === $form_order->id, 404);
+
+        $validated = $request->validate([
+            'assigned_to' => ['nullable', 'exists:users,id'],
+        ]);
+
+        $assignedTo = $validated['assigned_to'] ?? null;
+
+        if ($assignedTo && ! $form_order->brand->users()->role('drafter')->whereKey($assignedTo)->exists()) {
+            abort(422, 'Drafter tersebut tidak terdaftar pada brand ini.');
+        }
+
+        $task->update(['assigned_to' => $assignedTo]);
+
+        return back()->with('success', 'PIC tugas berhasil diperbarui.');
     }
 
     public function finalize(FormOrder $form_order)
@@ -179,6 +212,25 @@ class FormOrderController extends Controller
                 ];
             })
             ->values();
+    }
+
+    /**
+     * Peta brand_id => daftar drafter (id, name) yang boleh di-assign sebagai
+     * PIC lingkup pekerjaan pada brand tersebut.
+     */
+    private function brandDraftersMap(Collection $brands): array
+    {
+        if (! config('features.drafter_tasks')) {
+            return [];
+        }
+
+        return Brand::with(['users' => fn ($query) => $query->role('drafter')])
+            ->whereIn('id', $brands->pluck('id'))
+            ->get()
+            ->mapWithKeys(fn (Brand $brand) => [
+                (string) $brand->id => $brand->users->map(fn ($u) => ['id' => (string) $u->id, 'name' => $u->name])->values(),
+            ])
+            ->all();
     }
 
     /**

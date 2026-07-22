@@ -70,6 +70,11 @@ class FormOrder extends Model
         return $this->hasMany(FormOrderRevision::class)->orderBy('urutan');
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(FormOrderTask::class)->orderBy('urutan');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accessor
@@ -79,5 +84,16 @@ class FormOrder extends Model
     public function getIsLockedAttribute(): bool
     {
         return $this->status === 'selesai';
+    }
+
+    public function getProgressAttribute(): int
+    {
+        $total = $this->tasks->count();
+
+        if ($total === 0) {
+            return 0;
+        }
+
+        return (int) round($this->tasks->where('is_done', true)->count() / $total * 100);
     }
 }

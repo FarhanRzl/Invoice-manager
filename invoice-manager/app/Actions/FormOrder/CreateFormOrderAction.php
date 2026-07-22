@@ -14,6 +14,7 @@ class CreateFormOrderAction
 
     public function __construct(
         protected FormOrderNumberService $numberService,
+        protected SyncFormOrderTasksAction $syncTasks,
     ) {
     }
 
@@ -69,6 +70,10 @@ class CreateFormOrderAction
                     'path' => ! empty($revision['file']) ? $this->storeImageAsPng($revision['file'], 'form-orders/revisions') : null,
                     'urutan' => $index + 1,
                 ]);
+            }
+
+            if (config('features.drafter_tasks')) {
+                $this->syncTasks->execute($formOrder, $data['lingkup_pekerjaan'] ?? [], $data['tugas_assignments'] ?? []);
             }
 
             return $formOrder;

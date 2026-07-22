@@ -80,6 +80,57 @@
             </dl>
         </div>
 
+        @if (config('features.drafter_tasks'))
+            <div class="bg-white rounded-xl border border-slate-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-navy-600">Tugas / Checklist</h3>
+                    <span class="text-xs font-bold text-navy-600">{{ $formOrder->progress }}%</span>
+                </div>
+
+                @if ($formOrder->tasks->isNotEmpty())
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+                        <div class="h-full bg-emerald-500" style="width: {{ $formOrder->progress }}%"></div>
+                    </div>
+
+                    <ul class="space-y-2">
+                        @foreach ($formOrder->tasks as $task)
+                            <li class="flex items-center gap-3 text-sm">
+                                <span class="w-5 h-5 rounded flex items-center justify-center shrink-0
+                                    {{ $task->is_done ? 'bg-emerald-500 text-white' : 'border-2 border-slate-300' }}">
+                                    @if ($task->is_done)
+                                        &check;
+                                    @endif
+                                </span>
+                                <span class="flex-1 {{ $task->is_done ? 'text-slate-400 line-through' : 'text-slate-700' }}">
+                                    {{ $task->name }}
+                                </span>
+
+                                @if (! $formOrder->is_locked && $taskDrafters->isNotEmpty())
+                                    <form action="{{ route('form-orders.tasks.assign', [$formOrder, $task]) }}" method="POST" class="shrink-0">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="assigned_to" onchange="this.form.submit()"
+                                            class="text-xs border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm py-1">
+                                            <option value="">Belum ada PIC</option>
+                                            @foreach ($taskDrafters as $drafter)
+                                                <option value="{{ $drafter->id }}" @selected($task->assigned_to == $drafter->id)>{{ $drafter->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </form>
+                                @else
+                                    <span class="text-xs font-semibold text-slate-400 shrink-0">
+                                        {{ $task->assignee->name ?? 'Belum ada PIC' }}
+                                    </span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-sm text-slate-400">Belum ada checklist tugas.</p>
+                @endif
+            </div>
+        @endif
+
         <div class="bg-white rounded-xl border border-slate-200 p-6">
             <h3 class="text-sm font-semibold text-navy-600 mb-4">Lingkup Pekerjaan</h3>
             @if (! empty($formOrder->lingkup_pekerjaan))

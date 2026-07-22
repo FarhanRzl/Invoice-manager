@@ -39,6 +39,10 @@ class StoreFormOrderRequest extends FormRequest
 
             'lingkup_pekerjaan.*' => ['string'],
 
+            'tugas_assignments' => ['nullable', 'array'],
+
+            'tugas_assignments.*' => ['nullable', 'exists:users,id'],
+
             'images' => ['nullable', 'array'],
 
             'images.*.file' => ['nullable', 'image', 'max:5120'],

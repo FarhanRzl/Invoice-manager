@@ -11,6 +11,11 @@ class UpdateFormOrderAction
 {
     use StoresImagesAsPng;
 
+    public function __construct(
+        protected SyncFormOrderTasksAction $syncTasks,
+    ) {
+    }
+
     public function execute(FormOrder $formOrder, array $data): FormOrder
     {
         return DB::transaction(function () use ($formOrder, $data) {
@@ -34,6 +39,10 @@ class UpdateFormOrderAction
 
             $this->removeRevisions($formOrder, $data['remove_revision_ids'] ?? []);
             $this->addNewRevisions($formOrder, $data['revisions'] ?? []);
+
+            if (config('features.drafter_tasks')) {
+                $this->syncTasks->execute($formOrder, $data['lingkup_pekerjaan'] ?? [], $data['tugas_assignments'] ?? []);
+            }
 
             return $formOrder->refresh();
         });

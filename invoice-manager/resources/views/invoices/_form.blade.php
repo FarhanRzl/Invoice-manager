@@ -165,15 +165,54 @@
             const s = this.subtotal();
             return s * (1 - (parseFloat(this.diskon) || 0) / 100) * (1 + (parseFloat(this.ppn) || 0) / 100);
         },
+        terbilang(n) {
+            n = Math.floor(Math.abs(n));
+            if (n === 0) return 'Nol';
+
+            const satuan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+            const convert = (num) => {
+                if (num < 12) return satuan[num];
+                if (num < 20) return convert(num - 10) + ' Belas';
+                if (num < 100) return convert(Math.floor(num / 10)) + ' Puluh' + (num % 10 !== 0 ? ' ' + convert(num % 10) : '');
+                if (num < 200) return 'Seratus' + (num % 100 !== 0 ? ' ' + convert(num % 100) : '');
+                if (num < 1000) return convert(Math.floor(num / 100)) + ' Ratus' + (num % 100 !== 0 ? ' ' + convert(num % 100) : '');
+                if (num < 2000) return 'Seribu' + (num % 1000 !== 0 ? ' ' + convert(num % 1000) : '');
+                if (num < 1000000) return convert(Math.floor(num / 1000)) + ' Ribu' + (num % 1000 !== 0 ? ' ' + convert(num % 1000) : '');
+                if (num < 1000000000) return convert(Math.floor(num / 1000000)) + ' Juta' + (num % 1000000 !== 0 ? ' ' + convert(num % 1000000) : '');
+                if (num < 1000000000000) return convert(Math.floor(num / 1000000000)) + ' Miliar' + (num % 1000000000 !== 0 ? ' ' + convert(num % 1000000000) : '');
+                return convert(Math.floor(num / 1000000000000)) + ' Triliun' + (num % 1000000000000 !== 0 ? ' ' + convert(num % 1000000000000) : '');
+            };
+
+            return convert(n).trim();
+        },
         generateSphNarasi() {
             const klien = this.klien || '[Nama Klien]';
             const brand = this.brandName || 'kami';
             let counter = 0;
             const itemLines = this.items.length
-                ? this.items.map(item => { counter++; return '   ' + counter + '. ' + item.deskripsi.split('\n')[0]; }).join('\n')
+                ? this.items.map(item => {
+                    counter++;
+                    if (item.type === 'group') {
+                        const subLines = item.sub_items
+                            .filter(s => s.deskripsi)
+                            .map(s => '      • ' + s.deskripsi)
+                            .join('\n');
+                        return '   ' + counter + '. ' + (item.deskripsi || '(Tanpa nama)') + (subLines ? '\n' + subLines : '');
+                    }
+                    if (item.type === 'paket') {
+                        const lines = item.deskripsi.split('\n').filter(l => l.trim() !== '');
+                        const title = lines[0] || '(Tanpa nama)';
+                        const rest = lines.slice(1).map(l => '      ' + l).join('\n');
+                        return '   ' + counter + '. ' + title + (rest ? '\n' + rest : '');
+                    }
+                    return '   ' + counter + '. ' + item.deskripsi;
+                }).join('\n')
                 : '   1. [Deskripsi Pekerjaan]';
             const total = this.total();
-            const totalStr = total > 0 ? ('Rp ' + Math.round(total).toLocaleString('id-ID')) : '[Total Biaya]';
+            const totalRounded = Math.round(total);
+            const totalStr = total > 0
+                ? ('Rp ' + totalRounded.toLocaleString('id-ID') + ' (' + this.terbilang(totalRounded) + ' Rupiah)')
+                : '[Total Biaya]';
 
             this.sphPerihal = 'Penawaran Jasa Desain ' + klien;
             this.sphNarasi = 'Kepada Yth.\nBapak/Ibu ' + klien + '\ndi Tempat\n\n'

@@ -3,11 +3,13 @@
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DrafterController;
 use App\Http\Controllers\FormOrderController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoiceController;
 
@@ -27,6 +29,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('brands', BrandController::class);
 
     Route::resource('admin-users', AdminUserController::class)->except(['show']);
+
+    if (config('features.drafter_tasks')) {
+        Route::resource('drafters', DrafterController::class)->except(['show']);
+    }
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -53,6 +59,14 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('form-orders/{form_order}/pdf', [FormOrderController::class, 'pdf'])->name('form-orders.pdf');
     Route::post('form-orders/{form_order}/finalize', [FormOrderController::class, 'finalize'])->name('form-orders.finalize');
+
+    if (config('features.drafter_tasks')) {
+        Route::get('my-tasks', [TaskController::class, 'index'])->name('tasks.index');
+        Route::patch('my-tasks/{task}', [TaskController::class, 'toggle'])->name('tasks.toggle');
+
+        Route::patch('form-orders/{form_order}/tasks/{task}/assign', [FormOrderController::class, 'assignTask'])
+            ->name('form-orders.tasks.assign');
+    }
 
 });
 
