@@ -20,18 +20,21 @@
     <table style="width:100%;border-collapse:collapse">
         <tr>
             <td style="text-align:right">
-                <div style="display:inline-block;text-align:center;min-width:160px">
-                    <div style="font-size:11px;color:#64748b;margin-bottom:8px">{{ $sign['ttd_nama'] ?? $invoice->brand->name }},</div>
+                <div style="display:inline-block;text-align:center;min-width:200px">
+                    <div style="font-size:11px;color:#64748b;margin-bottom:8px">TTD</div>
+                    {{-- Logo/stempel digeser ke kiri (bukan 50% pas tengah) supaya ada ruang
+                         kosong di kanan untuk tanda tangan, dan tanda tangan dikunci ke sisi
+                         kanan kotak (right:0) supaya tidak meluber keluar section. --}}
                     <div style="position:relative;height:100px">
                         @if (! empty($sign['stempel_path']))
-                            <img src="{{ $src($sign['stempel_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-50px;margin-left:-50px;opacity:.55;height:100px;width:100px;object-fit:contain">
+                            <img src="{{ $src($sign['stempel_path']) }}" style="position:absolute;top:50%;left:38%;margin-top:-50px;margin-left:-50px;opacity:.55;height:100px;width:100px;object-fit:contain">
                         @endif
                         @if (! empty($sign['materai_path']))
-                            <img src="{{ $src($sign['materai_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-28px;margin-left:-28px;height:56px;width:56px;object-fit:contain">
+                            <img src="{{ $src($sign['materai_path']) }}" style="position:absolute;top:50%;left:38%;margin-top:-28px;margin-left:-28px;height:56px;width:56px;object-fit:contain">
                         @endif
                         @if (! empty($sign['ttd_path']))
-                            <div style="position:absolute;top:50%;left:0;right:0;margin-top:-32px;text-align:center">
-                                <img src="{{ $src($sign['ttd_path']) }}" style="height:64px;max-width:140px;object-fit:contain">
+                            <div style="position:absolute;top:50%;right:0;margin-top:-32px">
+                                <img src="{{ $src($sign['ttd_path']) }}" style="height:64px;max-width:110px;object-fit:contain">
                             </div>
                         @endif
                     </div>

@@ -39,16 +39,19 @@
             <div style="text-align:center;min-width:200px">
                 <div style="font-size:12px;color:#718096;margin-bottom:8px">Hormat Kami,</div>
                 @if ($sphHasSign)
+                    {{-- Logo/stempel digeser ke kiri (bukan 50% pas tengah) supaya ada ruang
+                         kosong di kanan untuk tanda tangan, dan tanda tangan dikunci ke sisi
+                         kanan kotak (right:0) supaya tidak meluber keluar section. --}}
                     <div style="position:relative;width:200px;height:100px;margin:0 auto">
                         @if (! empty($sphSign['stempel_path']))
-                            <img src="{{ $sphSrc($sphSign['stempel_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-50px;margin-left:-50px;opacity:.55;height:100px;width:100px;object-fit:contain">
+                            <img src="{{ $sphSrc($sphSign['stempel_path']) }}" style="position:absolute;top:50%;left:38%;margin-top:-50px;margin-left:-50px;opacity:.55;height:100px;width:100px;object-fit:contain">
                         @endif
                         @if (! empty($sphSign['materai_path']))
-                            <img src="{{ $sphSrc($sphSign['materai_path']) }}" style="position:absolute;top:50%;left:50%;margin-top:-28px;margin-left:-28px;height:56px;width:56px;object-fit:contain">
+                            <img src="{{ $sphSrc($sphSign['materai_path']) }}" style="position:absolute;top:50%;left:38%;margin-top:-28px;margin-left:-28px;height:56px;width:56px;object-fit:contain">
                         @endif
                         @if (! empty($sphSign['ttd_path']))
-                            <div style="position:absolute;top:50%;left:0;right:0;margin-top:-32px;text-align:center">
-                                <img src="{{ $sphSrc($sphSign['ttd_path']) }}" style="height:64px;max-width:140px;object-fit:contain">
+                            <div style="position:absolute;top:50%;right:0;margin-top:-32px">
+                                <img src="{{ $sphSrc($sphSign['ttd_path']) }}" style="height:64px;max-width:110px;object-fit:contain">
                             </div>
                         @endif
                     </div>

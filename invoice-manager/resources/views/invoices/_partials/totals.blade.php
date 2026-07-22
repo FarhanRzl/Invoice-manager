@@ -16,4 +16,9 @@
         <td style="padding:8px 0 3px;border-top:1px solid #e2e8f0;font-size:15px;font-weight:800;color:#1a365d">Total</td>
         <td style="padding:8px 0 3px;border-top:1px solid #e2e8f0;text-align:right;font-size:15px;font-weight:800;color:#1a365d">Rp {{ number_format($invoice->total, 0, ',', '.') }}</td>
     </tr>
+    <tr>
+        <td colspan="2" style="padding:4px 0 0;text-align:right;font-size:11px;font-style:italic;color:#64748b">
+            Terbilang: {{ \App\Support\Terbilang::rupiah($invoice->total) }}
+        </td>
+    </tr>
 </table>
